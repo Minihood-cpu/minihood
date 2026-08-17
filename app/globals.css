@@ -1,0 +1,326 @@
+@import "tailwindcss";
+
+:root {
+  --lime: #c6ff3d;
+  --lime-bright: #e6ff9c;
+  --lime-dim: #8fcc1a;
+  --ink: #07080a;
+  --ink-soft: #101218;
+  --ink-elevated: #16181f;
+  --line: #2a2d35;
+
+  /* Secondary accents pulled from the real artwork palette — used sparingly,
+     never forced onto every element. */
+  --purple: #9b5de0;
+  --magenta: #e0399e;
+  --cyan: #4fe0cf;
+  --orange: #f08a3c;
+  --red: #e0424a;
+  --blue: #3f8cf0;
+
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+@theme inline {
+  --color-lime: var(--lime);
+  --color-lime-bright: var(--lime-bright);
+  --color-lime-dim: var(--lime-dim);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-elevated: var(--ink-elevated);
+  --color-line: var(--line);
+  --color-purple: var(--purple);
+  --color-magenta: var(--magenta);
+  --color-cyan: var(--cyan);
+  --color-orange: var(--orange);
+  --color-red: var(--red);
+  --color-blue: var(--blue);
+  --font-body: var(--font-body);
+  --font-pixel: var(--font-pixel);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--ink);
+  color: #ecece6;
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+img {
+  image-rendering: pixelated;
+}
+
+::selection {
+  background: var(--lime);
+  color: var(--ink);
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px dashed var(--lime);
+  outline-offset: 3px;
+}
+
+.font-pixel {
+  font-family: var(--font-pixel), monospace;
+}
+
+/* ---------- Texture: subtle scanlines + grain, applied to backgrounds only ---------- */
+
+.scanlines {
+  position: relative;
+}
+
+.scanlines::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.025) 0px,
+    rgba(255, 255, 255, 0.025) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+
+.grain {
+  position: relative;
+}
+
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+/* ---------- Pixel UI primitives ---------- */
+
+.pixel-border {
+  border: 2px solid var(--line);
+  box-shadow: 0 0 0 1px var(--ink) inset;
+}
+
+.pixel-corner {
+  clip-path: polygon(
+    0 8px,
+    8px 8px,
+    8px 0,
+    calc(100% - 8px) 0,
+    calc(100% - 8px) 8px,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 8px) calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 8px),
+    0 calc(100% - 8px)
+  );
+}
+
+.pixel-btn {
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.pixel-btn:not(:disabled):hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0 0 var(--ink), 3px 3px 0 1px var(--lime);
+}
+
+.pixel-btn:not(:disabled):active {
+  transform: translate(0, 0);
+  box-shadow: none;
+}
+
+.pixel-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Small pixel ornament under section headings */
+.section-ornament {
+  width: 64px;
+  height: 6px;
+  background:
+    linear-gradient(var(--lime), var(--lime)) left 0 / 24px 2px no-repeat,
+    linear-gradient(var(--lime), var(--lime)) right 0 / 24px 2px no-repeat,
+    linear-gradient(var(--lime), var(--lime)) center 2px / 4px 4px no-repeat;
+}
+
+/* ---------- Motion ---------- */
+
+@keyframes floatSlow {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+.anim-float {
+  animation: floatSlow 7s ease-in-out infinite;
+}
+
+@keyframes driftParticle {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate3d(var(--dx, 10px), var(--dy, -120px), 0);
+    opacity: 0;
+  }
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: var(--lime);
+  animation: driftParticle var(--dur, 9s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  animation: fadeSlideUp 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0.3) rotate(-8deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2) rotate(4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.check-pop {
+  animation: checkPop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pixelPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px var(--lime) inset;
+  }
+  50% {
+    box-shadow: 0 0 0 3px var(--lime-bright) inset;
+  }
+}
+
+.pulse-outline {
+  animation: pixelPulse 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-float,
+  .particle,
+  .reveal,
+  .check-pop,
+  .pulse-outline {
+    animation: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ---------- Accordion (FAQ) ---------- */
+
+.accordion-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.accordion-content[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+
+.accordion-content > div {
+  overflow: hidden;
+}
+
+/* ---------- Puzzle ---------- */
+
+.puzzle-piece {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.2s ease;
+  cursor: grab;
+}
+
+.puzzle-piece:active {
+  cursor: grabbing;
+}
+
+.puzzle-piece[data-dragging="true"] {
+  opacity: 0.35;
+}
+
+.puzzle-piece[data-swap-target="true"] {
+  box-shadow: 0 0 0 3px var(--lime) inset;
+}
+
+/* ---------- Utility scrollbars for horizontal mobile rows ---------- */
+
+.scroll-row {
+  scrollbar-width: none;
+}
+
+.scroll-row::-webkit-scrollbar {
+  display: none;
+}
